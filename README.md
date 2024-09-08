@@ -23,7 +23,7 @@ Let $L(n)$ = length of an n-bit cycle.
     
     b. Two points cannot map to the same point, because that would create a cycle length less than $2L(n-1)$.  
     
-    c. Two points in the n-bit cycle that are a distance of $L(n-1)$ apart must differ in the msb (most significant bit), because the remaining $n-1$ bits are the same
+    c. Two points in the n-bit cycle that are a distance of $L(n-1)$ apart must differ in the $2^{n-1}$ bit, because the bits below that are the same
 
 Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
@@ -59,14 +59,16 @@ $c_{a+b} = (c_am_b+c_b) \bmod 2^{32}$
 $r_{n} \equiv r_0m_n + c_n \mod 2^{32}$  
 $r_{n} = c_n$  
 
-So now we can quickly test our LCG to see whether $L(n) = 2L(n-1)$ for n from $0$ to $31$ by observing $r_{2^n}$ (if the cycle did increase in size, then the $n$-th bit will be 1 by statement `4c`). It turns out that it does, meaning that it touches every number from $0$ to $2^{32}-1$ exactly once.  That means we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
+So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n)$ equals $2L(n-1)$ for every $n$.  If the cycle did increase in size, then the $2^{n}$ bit of $r_{2^n}$ will be $1$ by statement `4c`.  It turns out that our LCG does have the maximum cycle length.
+
+This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
 
 We can also find the `r_count` given an arbitrary `r_value` using this method:
 - start at bit position 0
 - if the current bit is 1, advance `r_value` by $2^{position}$
 - add 1 to current position
 
-When you're finished, `r_value` will be exactly 0.  This works because each time you advance `r_value` by a power of 2, you're advancing by a multiple of the cycle length of each of the bits previously checked, meaning that they remain zero.  You can then subtract the total advancements applied during that process from $2^{32}$ to find the original `r_count`.
+When you're finished, `r_value` will be exactly $0$.  This works because each time you advance `r_value` by $2^{position}$, you toggle the current bit, and the bits below that are unchanged because you're advancing by a multiple of the cycle length of each of the lower bits.  You can then subtract the total advancements applied during that process from $2^{32}$ to find the original `r_count`.
 
 Summarizing everything:
 ```py
