@@ -105,7 +105,7 @@ class LCG32:
     
     # Get value of an arbitrary count
     def value(self, count):
-        return advance(0, count)
+        return self.advance(0, count)
     
     # Get count of an arbitrary value
     def count(self, value):
