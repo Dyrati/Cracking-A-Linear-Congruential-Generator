@@ -9,7 +9,7 @@ The first major observation is that the last bit of $r_{n+1}$ depends only on th
 
 With our particular LCG, the last bit alternates between 0 and 1.  If instead it went from 0 to 0, or from 1 to 1, then it would get stuck on that value forever because the next value depends only on the previous value.  In an isolated system, a "cycle" is complete when it repeats its state, and its cycle length is the distance between repeats.
 
-With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same, then the cycle length of the last 2-bits would be equal to the cycle length of the last bit.  Otherwise, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
+With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same, then the cycle length of the last 2-bits would be equal to the cycle length of the last bit.  If it's different, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
 
 Let $L(n)$ = length of an n-bit cycle.  
 
@@ -38,7 +38,7 @@ $r_{n+2} = ((r_{n}m + c)m + c) \bmod 2^{32}$
 $r_{n+2} = (r_{n}m^2 + cm + c) \bmod 2^{32}$  
 $r_{n+2} = (r_{n}(m^2 \bmod 2^{32}) + ((cm + c) \bmod 2^{32})) \bmod 2^{32}$  
 
-(With modular arithmetic, so long as each operation is integer multiplication or addition, you can apply the modulus operation anywhere you like without changing the result, provided you also apply the modulus operation at the end.  This is because every integer has the form `am + b`, and each multiplication/addition modulo `m` involving that integer is independent of `a`.)
+With modular arithmetic, so long as each operation is integer multiplication or addition, you can apply the modulus operation anywhere you like without changing the result, provided you also apply the modulus operation at the end.  This is because every integer has the form `am + b`, and each multiplication/addition modulo `m` involving that integer is independent of `a`.
 
 This leaves us with an equation for $r_{n+2}$ in terms of a new multiplier and increment:
 
@@ -61,7 +61,7 @@ $c_{a+b} = (c_am_b+c_b) \bmod 2^{32}$
 $r_{n} \equiv r_0m_n + c_n \mod 2^{32}$  
 $r_{n} = c_n$  
 
-So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n)$ equals $2L(n-1)$ for every $n$.  If the cycle did increase in size, then the $2^{n}$ bit of $r_{2^n}$ will be $1$ by statement `4c`.  It turns out that our LCG does have the maximum cycle length.
+So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n)$ equals $2L(n-1)$ for every $n$.  If the cycle did increase in size, then the $2^{n}$ bit of $r_{2^n}$ will be $1$ (see statement `4c`).  After testing, it turns out that our LCG does have the maximum cycle length.
 
 This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
 
