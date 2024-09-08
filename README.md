@@ -110,10 +110,9 @@ class LCG32:
     # Get count of an arbitrary value
     def count(self, value):
         total = 0
-        for i in range(32):
-            if value == 0: break
+        for i, (m, c) in enumerate(self.params):
+            if not value: break
             if not value & (1 << i): continue
-            m, c = self.params[i]
             value = (value*m + c) & 0xFFFFFFFF
             total += 1 << i
         return -total & 0xFFFFFFFF
@@ -123,4 +122,4 @@ gs2_lcg = LCG32(0x41C64E6D, 0x3039)
 gs3_lcg = LCG32(0x10DCD, 0x1)
 ```
 
-(The parameters `0x41C64E6D` and `12345` are also used by glibc, and  `0x10DCD` and `0x1` are used by older versions of glibc.)
+(The parameters `0x41C64E6D` and `0x3039` are also used by glibc, and  `0x10DCD` and `0x1` are used by older versions of glibc.)
