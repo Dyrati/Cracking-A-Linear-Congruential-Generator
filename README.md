@@ -3,11 +3,13 @@ $$
 r_{n+1} = \left(r_n*\texttt{0x41C64E6D + 0x3039}\right) \bmod 2^{32}
 $$
 
-The first key insight is that the last bit of $r_{n+1}$ depends only on the last bit of $r_n$, because changing any of the other bits of $r_n$ changes $r_{n+1}$ by a multiple of 2.  By the same reasoning, the last two bits of $r_{n+1}$ depend only on the last two bits of $r_n$, the last three bits of $r_{n+1}$ depend only on the last 3 bits of $r_n$, and so on.
+Linear Congruential Generators (LCGs) are simple recurrence relations used to produce pseudo-random numbers.  Depending on the choice of parameters, the output can appear unpredictable and pass formal randomness tests.  However they are not cryptographically secure, as it is possible to directly determine the position of the generator based on its output.  This document explains how.
+
+The first major observation is that the last bit of $r_{n+1}$ depends only on the last bit of $r_n$, because changing any of the other bits of $r_n$ changes $r_{n+1}$ by a multiple of 2.  By the same reasoning, the last two bits of $r_{n+1}$ depend only on the last two bits of $r_n$, the last three bits of $r_{n+1}$ depend only on the last 3 bits of $r_n$, and so on.
 
 With our particular LCG, the last bit alternates between 0 and 1.  If instead it went from 0 to 0, or from 1 to 1, then it would get stuck on that value forever because the next value depends only on the previous value.  In an isolated system, a "cycle" is complete when it repeats its state, and its cycle length is the distance between repeats.
 
-With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same as it started, its 2-bit cycle length would be equal to its 1-bit cycle length because the system repeated after a 1-bit cycle.  Otherwise, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
+With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same, then the cycle length of the last 2-bits would be equal to the cycle length of the last bit.  Otherwise, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
 
 Let $L(n)$ = length of an n-bit cycle.  
 
@@ -27,7 +29,7 @@ Let $L(n)$ = length of an n-bit cycle.
 
 Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
-The second key insight is that it's possible to "skip ahead" an arbitrary number of advances by choosing different values for the LCG multiplier and increment.  To see this, imagine advancing just two steps forward:
+The second major observation is that it's possible to "skip ahead" an arbitrary number of advances by choosing different values for the LCG multiplier and increment.  To see this, imagine advancing just two steps forward:
 
 $\text{m = multiplier, c = increment}$  
 $r_{n+2} = (r_{n+1}m + c) \bmod 2^{32}$  
