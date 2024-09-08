@@ -23,9 +23,9 @@ Let $L(n)$ = length of an n-bit cycle.
 
     a. $L(n+1) = 2L(n)$  
     
-    b. Two points in the $L(n+1)$ cycle cannot map to the same point, because that would make the cycle length is less than $2L(n)$.  
+    b. Two points in the $L(n+1)$ cycle cannot map to the same point because that would make the cycle length is less than $2L(n)$.  
     
-    c. Two points in the $L(n+1)$ cycle that are a distance of $L(n)$ apart must differ in bit $n$, because the bits below that are the same
+    c. Two points in the $L(n+1)$ cycle that are a distance of $L(n)$ apart must differ in bit $n$ because the bits below that are the same
 
 Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
@@ -61,7 +61,7 @@ $c_{a+b} = (c_am_b+c_b) \bmod 2^{32}$
 $r_{n} \equiv r_0m_n + c_n \mod 2^{32}$  
 $r_{n} = c_n$  
 
-So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n)$ equals $2L(n-1)$ for every $n$.  If the cycle did increase in size, then the $2^{n}$ bit of $r_{2^n}$ will be $1$ (see statement `4c`).  After testing, it turns out that our LCG does have the maximum cycle length.
+So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n+1)$ equals $2L(n)$ for each $n$ from $0$ to $31$.  If the cycle did increase in size, then bit $n$ of $r_{2^n}$ will be $1$ (see statement `4c`).  After testing, it turns out that our LCG does have the maximum cycle length.
 
 This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
 
