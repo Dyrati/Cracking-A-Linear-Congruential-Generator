@@ -1,4 +1,4 @@
-## Cracking Golden Sun's Linear Congruential Generator
+## Cracking A Linear Congruential Generator
 $$
 r_{n+1} = \left(r_n*\texttt{0x41C64E6D + 0x3039}\right) \bmod 2^{32}
 $$
@@ -9,7 +9,7 @@ With our particular LCG, the last bit alternates between 0 and 1.  If instead it
 
 With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same as it started, its 2-bit cycle length would be equal to its 1-bit cycle length because the system repeated after a 1-bit cycle.  Otherwise, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
 
-Let $L(n) = $ length of an n-bit cycle.  
+Let $L(n)$ = length of an n-bit cycle.  
 
 1. Advancing $L(n)$ steps always gives a number whose first $n$ bits are identical.  
 
@@ -29,35 +29,35 @@ Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit
 
 The second key insight is that it's possible to "skip ahead" an arbitrary number of advances by choosing different values for the LCG multiplier and increment.  To see this, imagine advancing just two steps forward:
 
-$\text{m = multiplier, c = increment}\\$
-$r_{n+2} = (r_{n+1}m + c) \bmod 2^{32}\\$
-$r_{n+2} = (((r_{n}m + c) \bmod 2^{32})m + c) \bmod 2^{32}\\$
-$r_{n+2} = ((r_{n}m + c)m + c) \bmod 2^{32}\\$
-$r_{n+2} = (r_{n}m^2 + cm + c) \bmod 2^{32}\\$
-$r_{n+2} = (r_{n}(m^2 \bmod 2^{32}) + ((cm + c) \bmod 2^{32})) \bmod 2^{32}$
+$\text{m = multiplier, c = increment}$  
+$r_{n+2} = (r_{n+1}m + c) \bmod 2^{32}$  
+$r_{n+2} = (((r_{n}m + c) \bmod 2^{32})m + c) \bmod 2^{32}$  
+$r_{n+2} = ((r_{n}m + c)m + c) \bmod 2^{32}$  
+$r_{n+2} = (r_{n}m^2 + cm + c) \bmod 2^{32}$  
+$r_{n+2} = (r_{n}(m^2 \bmod 2^{32}) + ((cm + c) \bmod 2^{32})) \bmod 2^{32}$  
 
 (With modular arithmetic, so long as each operation is integer multiplication or addition, you can apply the modulus operation anywhere you like without changing the result, provided you also apply the modulus operation at the end.  This is because every integer has the form `am + b`, and each multiplication/addition modulo `m` involving that integer is independent of `a`.)
 
 This leaves us with an equation for $r_{n+2}$ in terms of a new multiplier and increment:
 
-$m_2 = m^2 \bmod 2^{32}\\$
-$c_2 = (cm + c) \bmod 2^{32}\\$
-$r_{n+2} = (r_nm_2 + c_2) \bmod 2^{32}$
+$m_2 = m^2 \bmod 2^{32}$  
+$c_2 = (cm + c) \bmod 2^{32}$  
+$r_{n+2} = (r_nm_2 + c_2) \bmod 2^{32}$  
 
 Replacing $m$ and $c$ with $m_{2}$ and $c_{2}$ in the previous set of equations gives us an equation for $r_{n+4}$.  In this way, we can also obtain $r_{n+8}$, $r_{n+16}$, and so on.  We can also combine these arbitrarily to obtain an equation for $r_{n+x}$.
 
-"$a \equiv b \mod m$" is shorthand for "$a \bmod m = b \bmod m$".  
-This is read as "$a$ is **congruent to** $b$ modulo $m$".  
+$a \equiv b \mod m$ is shorthand for $a \bmod m = b \bmod m$.  
+This is read as $a$ is **congruent to** $b$ modulo $m$.  
 
-$r_{n+(a+b)} \equiv r_{n+a}m_b + c_b \mod 2^{32}\\$
-$r_{n+(a+b)} \equiv (r_nm_a  + c_a)m_b + c_b \mod 2^{32}\\$
-$r_{n+(a+b)} \equiv r_n(m_am_b) + (c_am_b+c_b) \mod 2^{32}\\$
+$r_{n+(a+b)} \equiv r_{n+a}m_b + c_b \mod 2^{32}$  
+$r_{n+(a+b)} \equiv (r_nm_a  + c_a)m_b + c_b \mod 2^{32}$  
+$r_{n+(a+b)} \equiv r_n(m_am_b) + (c_am_b+c_b) \mod 2^{32}$  
 
-$m_{a+b} = (m_am_b) \bmod 2^{32}\\$
-$c_{a+b} = (c_am_b+c_b) \bmod 2^{32}\\$
+$m_{a+b} = (m_am_b) \bmod 2^{32}$  
+$c_{a+b} = (c_am_b+c_b) \bmod 2^{32}$  
 
-$r_{n} \equiv r_0m_n + c_n \mod 2^{32}\\$
-$r_{n} = c_n$
+$r_{n} \equiv r_0m_n + c_n \mod 2^{32}$  
+$r_{n} = c_n$  
 
 So now we can quickly test our LCG to see whether $L(n) = 2L(n-1)$ for n from $0$ to $31$ by observing $r_{2^n}$ (if the cycle did increase in size, then the $n$-th bit will be 1 by statement `4c`). It turns out that it does, meaning that it touches every number from $0$ to $2^{32}-1$ exactly once.  That means we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
 
