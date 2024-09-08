@@ -13,19 +13,19 @@ With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last
 
 Let $L(n)$ = length of an n-bit cycle.  
 
-1. Advancing $L(n)$ steps always gives a number whose first $n$ bits are identical.  
+1. Advancing $L(n)$ steps always leaves bit $0$ through bit $n-1$ unchanged.  
 
-2. $L(n)$ cannot exceed $2L(n-1)$.  
+2. $L(n+1)$ cannot exceed $2L(n)$.  
 
-3. $L(n)$ is always a multiple of $L(n-1)$, because the minimum distance between two identical values defines the cycle length.  
+3. $L(n+1)$ is always a multiple of $L(n)$, because the minimum distance between two identical values defines the cycle length.  
 
-4. If $L(n) > L(n-1)$  
+4. If $L(n+1) > L(n)$  
 
-    a. $L(n) = 2L(n-1)$  
+    a. $L(n+1) = 2L(n)$  
     
-    b. Two points cannot map to the same point, because that would create a cycle length less than $2L(n-1)$.  
+    b. Two points in the $L(n+1)$ cycle cannot map to the same point, because that would make the cycle length is less than $2L(n)$.  
     
-    c. Two points in the n-bit cycle that are a distance of $L(n-1)$ apart must differ in the $2^{n-1}$ bit, because the bits below that are the same
+    c. Two points in the $L(n+1)$ cycle that are a distance of $L(n)$ apart must differ in bit $n$, because the bits below that are the same
 
 Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
