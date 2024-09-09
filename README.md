@@ -89,14 +89,14 @@ To obtain an arbitrary $r_n$, we can find the corresponding $m_n$ and $c_n$, and
 $r_n = m_nr_0 + c_n$  
 $r_n = c_n$
 
-So now we can quickly test whether our LCG has the maximum cycle length by confirming that $L(n+1)$ equals $2L(n)$ for each $n$ from $0$ to $31$.  If the cycle did increase in size, then bit $n$ of $r_{2^n}$ will be $1$ (see statement `4c`).  After testing, it turns out that our LCG does have the maximum cycle length.
+If bit $n$ of $r_{2^n}$ is 1, that means that advancing $2^n$ steps toggles bit $n$.  Advancing $2^n$ steps also completes an $n-1$ bit cycle, so if bit $n$ is toggled after those steps, that means that the $n+1$ bit cycle length is double the $n$ bit cycle length. So now we can quickly test whether our LCG has the maximum cycle length by confirming that bit $n$ of $r_{2^n}$ is always $1$.  After testing, it turns out that our LCG does have the maximum cycle length.
 
 This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can actually reverse the rng by using the formula for $r_{2^{32}-1}$.
 
 We can also find the `r_count` given an arbitrary `r_value` using this method:
 - start at bit position 0
 - if the current bit is 1, advance `r_value` by $2^{position}$
-- add 1 to current position
+- add 1 to the current position
 
 When you're finished, `r_value` will be exactly $0$.  This works because each time you advance `r_value` by $2^{position}$, you toggle the current bit, and the bits below that are unchanged because you're advancing by a multiple of the cycle length of each of the lower bits.  You can then subtract the total advancements applied during that process from $2^{32}$ to find the original `r_count`.
 
