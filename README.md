@@ -35,7 +35,7 @@ Let $L(n)$ = length of an n-bit cycle.
 
     a. $L(n+1) = 2L(n)$  
     
-    b. Two points in the $L(n+1)$ cycle cannot map to the same point because that would make the cycle length is less than $2L(n)$.  
+    b. Two points in the $L(n+1)$ cycle cannot map to the same point because that would mean the cycle length is less than $2L(n)$.  
     
     c. Two points in the $L(n+1)$ cycle that are a separated by $L(n)$ steps must differ in bit $n$ because the bits below that are the same
 
