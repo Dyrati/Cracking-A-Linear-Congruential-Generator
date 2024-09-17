@@ -37,7 +37,7 @@ Let $L(n)$ = length of an n-bit cycle.
     
     b. Two points in the $L(n+1)$ cycle cannot map to the same point because that would mean the cycle length is less than $2L(n)$.  
     
-    c. Two points in the $L(n+1)$ cycle that are a separated by $L(n)$ steps must differ in bit $n$ because the bits below that are the same
+    c. Two points in the $L(n+1)$ cycle that are a separated by $L(n)$ steps must differ in bit $n$ because the bits below that are the same.
 
 Observing our particular LCG, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
@@ -116,7 +116,7 @@ class LCG32:
             self.params.append((m,c))
     
     # Find m and c for any number of advances, even negative
-    def params(self, advances):
+    def get_params(self, advances):
         advances &= 0xFFFFFFFF
         m_new = 1
         c_new = 0
