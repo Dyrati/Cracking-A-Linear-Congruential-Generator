@@ -110,48 +110,50 @@ When you're finished, `r_value` will be exactly $0$.  This works because each ti
 ```py
 class LCG32:
     
-    # Find m_n and c_n for each power of 2 up to 2^31
+    # Find m_n and c_n for each power of 2
     def __init__(self, m, c):
+        bit_length = 32
+        self.bitmask = 2**bit_length - 1
         self.params = [(m, c)]
-        for i in range(31):
-            c = (c*m + c) & 0xFFFFFFFF
-            m = m**2 & 0xFFFFFFFF
+        for i in range(bit_length - 1):
+            c = (c*m + c) & self.bitmask
+            m = m**2 & self.bitmask
             self.params.append((m,c))
     
-    # Find m and c for any number of advances, even negative
-    def get_params(self, advances):
-        advances &= 0xFFFFFFFF
+    # Find m_x and c_x for any integer x
+    def get_params(self, x):
+        x &= self.bitmask
         m_res = 1
         c_res = 0
         for i in range(advances.bit_length()):
-            if advances & 1:
+            if x & 1:
                 m, c = self.params[i]
-                m_res = (m_res*m) & 0xFFFFFFFF
-                c_res = (c_res*m + c) & 0xFFFFFFFF
-            advances >>= 1
+                m_res = (m_res*m) & self.bitmask
+                c_res = (c_res*m + c) & self.bitmask
+            x >>= 1
         return m_res, c_res
     
     # Get value of an arbitrary count
     def value(self, count, init=0):
-        count &= 0xFFFFFFFF
+        count &= self.bitmask
         for i in range(count.bit_length()):
             if count & 1:
                 m, c = self.params[i]
-                init = (init*m + c) & 0xFFFFFFFF
+                init = (init*m + c) & self.bitmask
             count >>= 1
         return init
     
     # Get count of an arbitrary value
     def count(self, value):
-        total = 0
+        advances = 0
         bitmask = 1
         for m, c in self.params:
             if not value: break
             if value & bitmask:
-                value = (value*m + c) & 0xFFFFFFFF
-                total += bitmask
+                value = (value*m + c) & self.bitmask
+                advances += bitmask
             bitmask <<= 1
-        return -total & 0xFFFFFFFF
+        return -advances & self.bitmask
 
 rng = LCG32(0x41C64E6D, 0x3039)
 print(rng.value(3)) # prints 2802067423
