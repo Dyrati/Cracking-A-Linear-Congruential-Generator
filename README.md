@@ -28,7 +28,7 @@ A "cycle" is complete when something repeats its state, and its cycle length is 
 
 Let $L(n)$ = length of an n-bit cycle.  
 
-1. Advancing $L(n)$ steps always leaves bit $0$ through bit $n-1$ unchanged (by definition).
+1. Advancing $L(n)$ steps always leaves bit $0$ through bit $n-1$ unchanged (by definition).  (*NOTE: Bit 0 is the 1's place bit.*)
 
 2. $L(n+1)$ cannot exceed $2L(n)$ because it only adds one bit, which can no more than double the number of possible states.  
 
@@ -46,21 +46,15 @@ Observing our output table, we see that the 1-bit cycle is `0 -> 1`, the 2-bit c
 
 The second key observation is that it's possible to "skip ahead" an arbitrary number of advances by choosing different values for the multiplier and increment.  To see this, imagine advancing just two steps forward:
 
-$r_{n+2} = (r_{n+1}m + c) \bmod 2^{32}$  
-$r_{n+2} = (((r_{n}m + c) \bmod 2^{32})m + c) \bmod 2^{32}$  
-$r_{n+2} = ((r_{n}m + c)m + c) \bmod 2^{32}$  
-$r_{n+2} = (r_{n}m^2 + cm + c) \bmod 2^{32}$  
-$r_{n+2} = (r_{n}(m^2 \bmod 2^{32}) + ((cm + c) \bmod 2^{32})) \bmod 2^{32}$  
-$r_{n+2} = (r_{n}m_2 + c_2) \bmod 2^{32}$  
+$r_{n+2} = r_{n+1}m + c \mod 2^{32}$  
+$r_{n+2} = (r_{n}m + c)m + c \mod 2^{32}$  
+$r_{n+2} = r_{n}m^2 + cm + c \mod 2^{32}$  
 
-With modular arithmetic, so long as each operation is integer multiplication or addition, you can apply the modulus operation anywhere you like without changing the result, provided you also apply the modulus operation at the end.  (By representing integers as `am + b`, it is easy to show that taking the modulus before multiplication/addition is equivalent to taking the modulus after.)
+$m_2 = m^2 \mod 2^{32}$  
+$c_2 = cm + c \mod 2^{32}$  
+$r_{n+2} = r_{n}m_2 + c_2 \mod 2^{32}$  
 
-This leaves us with an equation for $r_{n+2}$ in terms of a new multiplier and increment:
-
-$m_2 = m^2 \bmod 2^{32}$  
-$c_2 = (cm + c) \bmod 2^{32}$  
-$r_{n+2} = (r_nm_2 + c_2) \bmod 2^{32}$  
-
+This leaves us with an equation for $r_{n+2}$ in terms of a new multiplier and increment.
 Replacing $m$ and $c$ with $m_{2}$ and $c_{2}$ in the previous equations gives us $m_4$ and $c_4$, and we can continue doubling up to $m_{2^{31}}$ and $c_{2^{31}}$.  
 
 |i|$m_i$|$c_i$|
@@ -75,33 +69,30 @@ Replacing $m$ and $c$ with $m_{2}$ and $c_{2}$ in the previous equations gives u
 |$2^{7}$|1711D201|B6461980|
 |$2^{8}$|BE67A401|1EF73300|
 
-We can combine these arbitrarily to obtain $m_{x}$ and $c_{x}$ for any integer $x$.
+We can also combine any two pairs of multipliers and increments: 
 
-$a \equiv b \mod m$ is shorthand for $a \bmod m = b \bmod m$.  
-This is read as $a$ is **congruent to** $b$ modulo $m$.  
+$r_{n+(a+b)} = r_{n+a}m_b + c_b \mod 2^{32}$  
+$r_{n+(a+b)} = (r_nm_a  + c_a)m_b + c_b \mod 2^{32}$  
+$r_{n+(a+b)} = r_n(m_am_b) + (c_am_b+c_b) \mod 2^{32}$  
 
-$r_{n+(a+b)} \equiv r_{n+a}m_b + c_b \mod 2^{32}$  
-$r_{n+(a+b)} \equiv (r_nm_a  + c_a)m_b + c_b \mod 2^{32}$  
-$r_{n+(a+b)} \equiv r_n(m_am_b) + (c_am_b+c_b) \mod 2^{32}$  
+$m_{a+b} = m_am_b \mod 2^{32}$  
+$c_{a+b} = c_am_b+c_b \mod 2^{32}$  
 
-$m_{a+b} = (m_am_b) \bmod 2^{32}$  
-$c_{a+b} = (c_am_b+c_b) \bmod 2^{32}$  
+Applying this formula repeatedly using $m_i$ and $c_i$ from our powers of 2 table allows us to obtain $m_{x}$ and $c_{x}$ for any whole number $x$.  To obtain an arbitrary $r_x$, we can find the corresponding $m_x$ and $c_x$, and apply it to $r_0$.
 
-To obtain an arbitrary $r_n$, we can find the corresponding $m_n$ and $c_n$, and apply it to $r_0$.
+$r_x = r_{0}m_x + c_x \mod 2^{32}$  
+$r_x = c_x$
 
-$r_n = m_nr_0 + c_n$  
-$r_n = c_n$
+Advancing $2^n$ steps always completes an $n$ bit cycle.  If bit $n$ of $r_{2^n}$ is 1, that means that advancing $2^n$ steps toggles bit $n$, which means that $L(n+1) = 2L(n)$.  We can test whether the cycle length doubles every time by checking whether bit $n$ of $r_{2^n}$ is 1 for each $n$ from 0 to 31. Our choice of multiplier and increment does pass this test, which means it also has the maximum cycle length.
 
-Advancing $2^n$ steps always completes an $n$ bit cycle.  If bit $n+1$ of $r_{2^n}$ is 1, that means that advancing $2^n$ steps toggles bit $n+1$, which means that $L(n+1) = 2L(n)$.  We can test whether the cycle length doubles every time by checking whether bit $n$ of $r_{2^n}$ is 1 for each $n$ from 0 to 31. Our choice of multiplier and increment does pass this test, which means it also has the maximum cycle length.
-
-This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can actually reverse the rng by using the multiplier and increment for $r_{2^{32}-1}$.
+This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  This also means that we can reverse the rng by using the formula for $r_{2^{32}-1}$.
 
 We can also find the `r_count` given an arbitrary `r_value` using this method:
-- start at bit position 0
-- if the current bit is 1, advance `r_value` by $2^{position}$
-- add 1 to the current position
+- start at bit position 0 (1's place)
+- if the bit at the current position is 1, advance `r_value` by $2^{position}$
+- add 1 to the position
 
-When you're finished, `r_value` will be exactly $0$.  This works because each time you advance `r_value` by $2^{position}$, you toggle the current bit, and the bits below that are unchanged because you're advancing by a multiple of the cycle length of each of the lower bits.  This process gives you the distance to $r_0$, and you can then subtract that distance from $2^{32}$ to find the original `r_count`.
+At the end of this process, `r_value` will be exactly $0$.  This works because each time `r_value` is advanced by $2^{position}$, the bit at that position is toggled, and the bits below that position are unchanged because the advancement is a multiple of the cycle length of each of the lower bits.  The total advancements equals the distance to $r_0$, which you can then subtract from $2^{32}$ to find the original `r_count`.
 
 ---
 
@@ -123,15 +114,15 @@ class LCG32:
     # Find m_x and c_x for any integer x
     def get_params(self, x):
         x &= self.bitmask
-        m_res = 1
-        c_res = 0
-        for i in range(advances.bit_length()):
+        m_x = 1
+        c_x = 0
+        for i in range(x.bit_length()):
             if x & 1:
                 m, c = self.params[i]
-                m_res = (m_res*m) & self.bitmask
-                c_res = (c_res*m + c) & self.bitmask
+                m_x = (m_x*m) & self.bitmask
+                c_x = (c_x*m + c) & self.bitmask
             x >>= 1
-        return m_res, c_res
+        return m_x, c_x
     
     # Get value of an arbitrary count
     def value(self, count, init=0):
