@@ -118,9 +118,9 @@ class LCG32:
         x &= self.bitmask
         m_x = 1
         c_x = 0
-        for i in range(x.bit_length()):
+        for m, c in self.params:
+            if x == 0: break
             if x & 1:
-                m, c = self.params[i]
                 m_x = (m_x*m) & self.bitmask
                 c_x = (c_x*m + c) & self.bitmask
             x >>= 1
@@ -129,23 +129,23 @@ class LCG32:
     # Get value of an arbitrary count
     def value(self, count, init=0):
         count &= self.bitmask
-        for i in range(count.bit_length()):
+        for m, c in self.params:
+            if count == 0: break
             if count & 1:
-                m, c = self.params[i]
                 init = (init*m + c) & self.bitmask
             count >>= 1
         return init
     
     # Get count of an arbitrary value
     def count(self, value):
+        position = 0
         advances = 0
-        bitmask = 1
         for m, c in self.params:
-            if not value: break
-            if value & bitmask:
+            if value == 0: break
+            if (value >> position) & 1:
                 value = (value*m + c) & self.bitmask
-                advances += bitmask
-            bitmask <<= 1
+                advances += 2**position
+            position += 1
         return -advances & self.bitmask
 
 rng = LCG32(0x41C64E6D, 0x3039)
