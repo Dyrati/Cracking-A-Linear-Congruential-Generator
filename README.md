@@ -89,10 +89,10 @@ This means that it touches every number from $0$ to $2^{32}-1$ exactly once.  Th
 
 We can also find the `r_count` given an arbitrary `r_value` using this method:
 - start at bit position 0 (1's place)
-- if the bit at the current position is 1, advance `r_value` by $2^{position}$
+- if the bit at the current position is 1, advance `r_value` $2^{position}$ steps
 - add 1 to the position
 
-At the end of this process, `r_value` will be exactly $0$.  This works because each time `r_value` is advanced by $2^{position}$, the bit at that position is toggled, and the bits below that position are unchanged because the advancement is a multiple of the cycle length of each of the lower bits.  The total advancements equals the distance to $r_0$, which you can then subtract from $2^{32}$ to find the original `r_count`.
+At the end of this process, `r_value` will be exactly $0$.  This works because each time `r_value` is advanced $2^{position}$ steps, the bit at that position is toggled, and the bits below that position are unchanged because the advancement is a multiple of the cycle length of each of the lower bits.  The total advancements equals the distance to $r_0$, which you can then subtract from $2^{32}$ to find the original `r_count`.
 
 ---
 
