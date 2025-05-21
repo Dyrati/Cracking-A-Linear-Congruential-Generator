@@ -1,7 +1,7 @@
 ## Cracking A Linear Congruential Generator
 
 $$r_0 = 0$$
-$$r_{n+1} = \left(r_{n}m + c\right) \bmod 2^{32}$$
+$$r_{n+1} = (r_{n}m + c) \bmod 2^{32}$$
 
 Linear Congruential Generators (LCGs) are simple recurrence relations used to produce pseudo-random numbers.  Depending on the choice of parameters $m$ (multiplier) and $c$ (increment), the output can appear unpredictable and pass formal randomness tests.  However they are not cryptographically secure, as it is possible to directly determine the position of the generator based on its output.  This document explains how.
 
@@ -108,9 +108,10 @@ class LCG32:
         self.bitmask = 2**bit_length - 1
         self.params = [(m, c)]
         for i in range(bit_length - 1):
-            c = (c*m + c) & self.bitmask
-            m = m**2 & self.bitmask
-            self.params.append((m,c))
+            m_next = (m**2) & self.bitmask
+            c_next = (c*m + c) & self.bitmask
+            self.params.append((m_next, c_next))
+            m, c = m_next, c_next
     
     # Find m_x and c_x for any integer x
     def get_params(self, x):
