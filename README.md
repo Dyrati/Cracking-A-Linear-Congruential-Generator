@@ -5,8 +5,8 @@ $$r_{n+1} = \left(r_{n}m + c\right) \bmod 2^{32}$$
 
 Linear Congruential Generators (LCGs) are simple recurrence relations used to produce pseudo-random numbers.  Depending on the choice of parameters $m$ (multiplier) and $c$ (increment), the output can appear unpredictable and pass formal randomness tests.  However they are not cryptographically secure, as it is possible to directly determine the position of the generator based on its output.  This document explains how.
 
-$$m = \texttt{0x41C64E6D}$$  
-$$c = \texttt{0x3039}$$
+$m = \texttt{0x41C64E6D}$  
+$c = \texttt{0x3039}$
 
 |$r_i$|dec|hex|bin|
 |-|-|-|-|
@@ -24,7 +24,7 @@ The first key observation is that the last bit of $r_{n+1}$ depends only on the 
 
 With our choice of parameters, the last bit alternates between 0 and 1.  If instead it went from 0 to 0, or from 1 to 1, then it would get stuck on that value forever because the next value of that bit depends only on the previous value of that bit.
 
-A "cycle" is complete when something repeats its state, and its cycle length is the distance between repeats.  With any LCG mod $2^n$, whenever the last bit completes a cycle, the 2nd-to-last-bit may either be the same as it started, or different than it started.  If it's the same, then the cycle length of the last 2-bits would be equal to the cycle length of the last bit.  If it's different, its 2-bit cycle length is double its 1-bit cycle length.  This holds true for every n-bit cycle length (shown below).  
+A **cycle** is complete when something repeats its state, and its **cycle length** is the distance between repeats.  With any LCG mod $2^n$, whenever the last bit completes a cycle, the next bit may either be the same as it started, or different than it started.  If it's the same, then the cycle length including that bit is the same as the cycle length without that bit.  If it's different, the cycle length is doubled.  This holds true for every n-bit cycle length (shown below).  
 
 Let $L(n)$ = length of an n-bit cycle.  
 
