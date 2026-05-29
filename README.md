@@ -3,10 +3,11 @@
 $$r_0 = 0$$
 $$r_{n+1} = (r_{n}m + c) \bmod 2^{32}$$
 
-Linear Congruential Generators (LCGs) are simple recurrence relations used to produce pseudo-random numbers.  Depending on the choice of parameters $m$ (multiplier) and $c$ (increment), the output can appear unpredictable and pass formal randomness tests.  However they are not cryptographically secure, as it is possible to directly determine the position of the generator based on its output.  This document explains how.
+Linear Congruential Generators (LCGs) are simple recurrence relations used to produce pseudo-random numbers.  Depending on the choice of parameters $m$ (multiplier) and $c$ (increment), the output can appear unpredictable and pass formal randomness tests.  However they are not cryptographically secure, since it is possible to directly determine the position of the generator based on its output.
 
-$m = \texttt{0x41C64E6D}$  
-$c = \texttt{0x3039}$
+$$m = \texttt{0x41C64E6D}, c = \texttt{0x3039}$$  
+
+<div align="center">
 
 |$r_i$|dec|hex|bin|
 |-|-|-|-|
@@ -20,7 +21,9 @@ $c = \texttt{0x3039}$
 |$r_7$|1051550459|3EAD62FB|00111110101011010110001011111011|
 |$r_8$|3441282840|CD1DCF18|11001101000111011100111100011000|
 
-The first key observation is that the last bit of $r_{n+1}$ depends only on the last bit of $r_n$, because changing $r_n$ by a multiple of 2 also changes $r_{n+1}$ by a multiple of 2.  Similarly, the last two bits of $r_{n+1}$ depend only on the last two bits of $r_n$, the last three bits of $r_{n+1}$ depend only on the last 3 bits of $r_n$, and so on.  Essentially, the lower $b$ bits of $r_{n+1}$ are unaffected by any bits above that in $r_n$.  The lower $b$ bits of the output can be viewed in isolation.
+</div>
+
+The last bit of $r_{n+1}$ depends only on the last bit of $r_n$, because changing $r_n$ by a multiple of 2 also changes $r_{n+1}$ by a multiple of 2.  Similarly, the last two bits of $r_{n+1}$ depend only on the last two bits of $r_n$, the last three bits of $r_{n+1}$ depend only on the last 3 bits of $r_n$, and so on.  Essentially, the lower $b$ bits of $r_{n+1}$ are unaffected by any bits above that in $r_n$.  The lower $b$ bits of the output can be viewed in isolation.
 
 With our choice of parameters, the last bit alternates between 0 and 1.  If instead it went from 0 to 0, or from 1 to 1, then it would get stuck on that value forever because the next value of that bit depends only on the previous value of that bit.
 
@@ -38,13 +41,13 @@ Let $L(n)$ = length of an n-bit cycle.
 
     a. $L(n+1) = 2L(n)$ by statements 2 and 3
     
-    b. Two points in the $L(n+1)$ cycle cannot map to the same point, because there would be no way to return to *both* initial points from the mapped point.
+    b. Two points in the $L(n+1)$ cycle cannot map to the same point, because that would eliminate one of the initial points from the cycle, making its length less than $2L(n)$.
     
     c. Two points in the $L(n+1)$ cycle that are a separated by $L(n)$ steps must differ in bit $n$, because otherwise, those two points would be the same point, which would mean $L(n+1) = L(n)$.
 
 Observing our output table, we see that the 1-bit cycle is `0 -> 1`, the 2-bit cycle is `00 -> 01 -> 10 -> 11`, and the 3-bit cycle is `000 -> 001 -> 110 -> 111 -> 100 -> 101 -> 010 -> 011`.  Each cycle length so far has doubled, but that does not guarantee it will keep happening. It depends on the choice of multiplier and increment.
 
-The second key observation is that it's possible to "skip ahead" an arbitrary number of advances by choosing different values for the multiplier and increment.  To see this, imagine advancing just two steps forward:
+It's possible to "skip ahead" an arbitrary number of advances by choosing different values for the multiplier and increment.  To see this, imagine advancing just two steps forward:
 
 $r_{n+2} = r_{n+1}m + c \mod 2^{32}$  
 $r_{n+2} = (r_{n}m + c)m + c \mod 2^{32}$  
@@ -57,17 +60,16 @@ $r_{n+2} = r_{n}m_2 + c_2 \mod 2^{32}$
 This leaves us with an equation for $r_{n+2}$ in terms of a new multiplier and increment.
 Replacing $m$ and $c$ with $m_{2}$ and $c_{2}$ in the previous equations gives us $m_4$ and $c_4$, and we can continue doubling up to $m_{2^{31}}$ and $c_{2^{31}}$.  
 
-|i|$m_i$|$c_i$|
-|-|-|-|
-|$2^{0}$|41C64E6D|00003039|
-|$2^{1}$|C2A29A69|D3DC167E|
-|$2^{2}$|EE067F11|D6651C2C|
-|$2^{3}$|CFDDDF21|CD1DCF18|
-|$2^{4}$|5F748241|65136930|
-|$2^{5}$|8B2E1481|642B7E60|
-|$2^{6}$|76006901|1935ACC0|
-|$2^{7}$|1711D201|B6461980|
-|$2^{8}$|BE67A401|1EF73300|
+|||||||||||||
+|-|-|-|-|-|-|-|-|-|-|-|-|
+|$2^{0}$|41C64E6D|00003039|$2^{8}$ |BE67A401|1EF73300|$2^{16}$|DFA40001|21330000|$2^{24}$|A4000001|33000000|
+|$2^{1}$|C2A29A69|D3DC167E|$2^{9}$ |DDDF4801|1F9A6600|$2^{17}$|BF480001|42660000|$2^{25}$|48000001|66000000|
+|$2^{2}$|EE067F11|D6651C2C|$2^{10}$|3FFE9001|85E4CC00|$2^{18}$|7E900001|84CC0000|$2^{26}$|90000001|CC000000|
+|$2^{3}$|CFDDDF21|CD1DCF18|$2^{11}$|90FD2001|26899800|$2^{19}$|FD200001|09980000|$2^{27}$|20000001|98000000|
+|$2^{4}$|5F748241|65136930|$2^{12}$|65FA4001|B8133000|$2^{20}$|FA400001|13300000|$2^{28}$|40000001|30000000|
+|$2^{5}$|8B2E1481|642B7E60|$2^{13}$|DBF48001|1C266000|$2^{21}$|F4800001|26600000|$2^{29}$|80000001|60000000|
+|$2^{6}$|76006901|1935ACC0|$2^{14}$|F7E90001|E84CC000|$2^{22}$|E9000001|4CC00000|$2^{30}$|00000001|C0000000|
+|$2^{7}$|1711D201|B6461980|$2^{15}$|EFD20001|90998000|$2^{23}$|D2000001|99800000|$2^{31}$|00000001|80000000|
 
 We can also combine any two pairs of multipliers and increments: 
 
@@ -100,57 +102,56 @@ At the end of this process, `r_value` will be exactly $0$.  This works because e
 ### Python Implementation
 
 ```py
-class LCG32:
-    
-    # Find m_n and c_n for each power of 2
-    def __init__(self, m, c):
-        bit_length = 32
-        self.bitmask = 2**bit_length - 1
-        self.params = [(m, c)]
-        for i in range(bit_length - 1):
-            m_next = (m**2) & self.bitmask
-            c_next = (c*m + c) & self.bitmask
-            self.params.append((m_next, c_next))
-            m, c = m_next, c_next
-    
-    # Find m_x and c_x for any integer x
-    def get_params(self, x):
-        x &= self.bitmask
-        m_x = 1
-        c_x = 0
-        for m, c in self.params:
-            if x == 0: break
-            if x & 1:
-                m_x = (m_x*m) & self.bitmask
-                c_x = (c_x*m + c) & self.bitmask
-            x >>= 1
-        return m_x, c_x
-    
-    # Get value of an arbitrary count
-    def value(self, count, init=0):
-        count &= self.bitmask
-        for m, c in self.params:
-            if count == 0: break
-            if count & 1:
-                init = (init*m + c) & self.bitmask
-            count >>= 1
-        return init
-    
-    # Get count of an arbitrary value
-    def count(self, value):
-        position = 0
-        advances = 0
-        for m, c in self.params:
-            if value == 0: break
-            if (value >> position) & 1:
-                value = (value*m + c) & self.bitmask
-                advances += 2**position
-            position += 1
-        return -advances & self.bitmask
+# Find m_n and c_n for each power of 2
+def iter_params(m=0x41C64E6D, c=0x3039):
+    yield m, c
+    for i in range(32):
+        m, c = (m**2) & 0xFFFFFFFF, (c*m+c) & 0xFFFFFFFF
+        yield m, c
 
-rng = LCG32(0x41C64E6D, 0x3039)
-print(rng.value(3)) # prints 2802067423
-print(rng.count(2802067423)) # prints 3
+# Find m_x and c_x for any integer x
+def get_params(x):
+    x &= 0xFFFFFFFF
+    m_x, c_x = 1, 0
+    for m, c in iter_params():
+        if x == 0: break
+        if x & 1:
+            m_x = (m_x*m) & 0xFFFFFFFF
+            c_x = (c_x*m + c) & 0xFFFFFFFF
+        x >>= 1
+    return m_x, c_x
+
+# Get value of an arbitrary count
+def value(count):
+    result = 0
+    count &= 0xFFFFFFFF
+    for m, c in iter_params():
+        if count == 0: break
+        if count & 1:
+            result = (result*m + c) & 0xFFFFFFFF
+        count >>= 1
+    return result
+
+# Get count of an arbitrary value
+def count(value):
+    advances = 0
+    for i, (m, c) in enumerate(iter_params()):
+        if value == 0: break
+        i = 1 << i
+        if value & i:
+            value = (value*m + c) & 0xFFFFFFFF
+            advances += i
+    return -advances & 0xFFFFFFFF
+
+# advance value n steps
+def advance(value, n):
+    n &= 0xFFFFFFFF
+    for m, c in iter_params():
+        if n == 0: break
+        if n & 1:
+            value = (value*m + c) & 0xFFFFFFFF
+        n >>= 1
+    return value
 ```
 
 (The parameters `0x41C64E6D` and `0x3039` are also used by glibc, and  `0x10DCD` and `0x1` are used by older versions of glibc.)
